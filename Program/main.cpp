@@ -3,7 +3,6 @@
 #include "LocalSearch.h"
 #include "Split.h"
 #include "InstanceCVRPLIB.h"
-#include <omp.h>
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -27,12 +26,12 @@ int main(int argc, char *argv[])
 		Genetic solver(params);
 		solver.run();
 		
-		// Exporting the best solution
-		if (solver.population.getBestFound() != NULL)
+		// Exporting the best solution. All populations should have the same best solution at this point.
+		if (solver.bestOfTheBest != NULL)
 		{
 			if (params.verbose) std::cout << "----- WRITING BEST SOLUTION IN : " << commandline.pathSolution << std::endl;
-			solver.population.exportCVRPLibFormat(*solver.population.getBestFound(),commandline.pathSolution);
-			solver.population.exportSearchProgress(commandline.pathSolution + ".PG.csv", commandline.pathInstance);
+			solver.populations[0].exportCVRPLibFormat(*solver.bestOfTheBest,commandline.pathSolution);
+			solver.populations[0].exportSearchProgress(commandline.pathSolution + ".PG.csv", commandline.pathInstance);
 		}
 	}
 	catch (const string& e) { std::cout << "EXCEPTION | " << e << std::endl; }

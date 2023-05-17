@@ -1,8 +1,9 @@
 #include "Population.h"
+#include <omp.h>
 
 void Population::generatePopulation()
 {
-	if (params.verbose) std::cout << "----- BUILDING INITIAL POPULATION" << std::endl;
+	if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() << "----- BUILDING INITIAL POPULATION" << std::endl;
 	for (int i = 0; i < 4*params.ap.mu && (i == 0 || params.ap.timeLimit == 0 || (double)(clock() - params.startTime) / (double)CLOCKS_PER_SEC < params.ap.timeLimit) ; i++)
 	{
 		Individual randomIndiv(params);
@@ -207,11 +208,11 @@ const Individual * Population::getBestFound()
 	else return NULL;
 }
 
-void Population::printState(int nbIter, int nbIterNoImprovement)
+void Population::printState(int nbIter, int nbIterNoImprovement, int thread_num)
 {
 	if (params.verbose)
 	{
-		std::printf("It %6d %6d | T(s) %.2f", nbIter, nbIterNoImprovement, (double)(clock()-params.startTime)/(double)CLOCKS_PER_SEC);
+		std::printf("THREAD %d It %6d %6d | T(s) %.2f", thread_num, nbIter, nbIterNoImprovement, (double)(clock()-params.startTime)/(double)CLOCKS_PER_SEC);
 
 		if (getBestFeasible() != NULL) std::printf(" | Feas %zu %.2f %.2f", feasibleSubpop.size(), getBestFeasible()->eval.penalizedCost, getAverageCost(feasibleSubpop));
 		else std::printf(" | NO-FEASIBLE");

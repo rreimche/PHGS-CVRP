@@ -78,7 +78,7 @@ class Population
    const Individual * getBestFound();
 
    // Prints population state
-   void printState(int nbIter, int nbIterNoImprovement);
+   void printState(int nbIter, int nbIterNoImprovement, int thread_num);
 
    // Distance measure between two individuals, used for diversity calculations
    double brokenPairsDistance(const Individual & indiv1, const Individual & indiv2);

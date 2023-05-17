@@ -94,6 +94,8 @@ public:
 		bool isDurationConstraint,
 		bool verbose,
 		const AlgorithmParameters& ap);
+
+
 };
 #endif
 

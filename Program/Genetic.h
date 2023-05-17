@@ -31,16 +31,26 @@ class Genetic
 public:
 
 	Params & params;				// Problem parameters
-	Split split;					// Split algorithm
-	LocalSearch localSearch;		// Local Search structure
-	Population population;			// Population (public for now to give access to the solutions, but should be be improved later on)
-	Individual offspring;			// First individual to be used as input for the crossover
+	//Split split;					// Split algorithm
+    std::vector<Split> splits;       // Split algorithms one per thread
+	//LocalSearch localSearch;		// Local Search structure
+    std::vector<LocalSearch> localSearchPerThread; // Local Search instances per thread
+	//Population population;			// Population (public for now to give access to the solutions, but should be be improved later on)
+    std::vector<Population> populations; // Populations, one per thread
+	//Individual offspring;			// First individual to be used as input for the crossover
+    std::vector<Individual> offsprings;
+    const int nMaxThreads;                // Max number of threads
+    const int exchangeRate;               // Rate, at which populations exchange their best individuals
+    Individual* bestOfTheBest;            // Best Solution
 
 	// OX Crossover
-	void crossoverOX(Individual & result, const Individual & parent1, const Individual & parent2);
+    void crossoverOX(Individual &result, const Individual &parent1, const Individual &parent2, Split &split);
 
     // Running the genetic algorithm until maxIterNonProd consecutive iterations or a time limit
     void run() ;
+
+    // Get best individual of all populations
+    Individual* getBestOfTheBest();
 
 	// Constructor
 	Genetic(Params & params);

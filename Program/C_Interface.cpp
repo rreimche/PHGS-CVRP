@@ -11,15 +11,15 @@
 #include <vector>
 #include <cmath>
 
-Solution *prepare_solution(Population &population, Params &params)
+Solution *prepare_solution(Individual* bestOfTheBest, Params &params)
 {
 	// Preparing the best solution
 	Solution *sol = new Solution;
 	sol->time = (double)(clock() - params.startTime) / (double)CLOCKS_PER_SEC;
 
-	if (population.getBestFound() != nullptr) {
+	if (bestOfTheBest != nullptr) {
 		// Best individual
-		auto best = population.getBestFound();
+		auto best = bestOfTheBest;
 
 		// setting the cost
 		sol->cost = best->eval.penalizedCost;
@@ -79,7 +79,7 @@ extern "C" Solution *solve_cvrp(
 		// Running HGS and returning the result
 		Genetic solver(params);
 		solver.run();
-		result = prepare_solution(solver.population, params);
+		result = prepare_solution(solver.bestOfTheBest, params);
 	}
 	catch (const std::string &e) { std::cout << "EXCEPTION | " << e << std::endl; }
 	catch (const std::exception &e) { std::cout << "EXCEPTION | " << e.what() << std::endl; }
@@ -117,7 +117,7 @@ extern "C" Solution *solve_cvrp_dist_mtx(
 		// Running HGS and returning the result
 		Genetic solver(params);
 		solver.run();
-		result = prepare_solution(solver.population, params);
+		result = prepare_solution(solver.bestOfTheBest, params);
 	}
 	catch (const std::string &e) { std::cout << "EXCEPTION | " << e << std::endl; }
 	catch (const std::exception &e) { std::cout << "EXCEPTION | " << e.what() << std::endl; }

@@ -2,6 +2,7 @@
 
 void Split::generalSplit(Individual & indiv, int nbMaxVehicles)
 {
+    std::cout << params.totalDemand << std::endl;
 	// Do not apply Split with fewer vehicles than the trivial (LP) bin packing bound
 	maxVehicles = std::max<int>(nbMaxVehicles, std::ceil(params.totalDemand/params.vehicleCapacity));
 

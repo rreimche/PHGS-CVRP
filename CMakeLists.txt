@@ -56,6 +56,13 @@ add_test(NAME    bin_test_CMT7
 add_library(lib SHARED ${src_files})
 set_target_properties(lib PROPERTIES OUTPUT_NAME hgscvrp)
 
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+	target_link_libraries(bin PUBLIC OpenMP::OpenMP_CXX)
+endif()
+
 # Test Library
 add_subdirectory(Test/Test-c/)
 add_test(NAME       lib_test_c

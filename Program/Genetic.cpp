@@ -52,7 +52,7 @@ void Genetic::run()
                 nbIterNonProd = 1;
             }
 
-            if((nbIterThread + 1) % exchangeRate == 0){
+            if((nbIterThread + 1) % params.ap.exchangeRate == 0){
 
                 #pragma omp barrier
                 // At this point, all the threads have finished the iteration
@@ -130,7 +130,6 @@ Individual* Genetic::getBestOfTheBest(){
 Genetic::Genetic(Params & params) : 
 	params(params), 
     nMaxThreads(omp_get_max_threads()),
-    exchangeRate(params.ap.exchangeRate),
     bestOfTheBest(nullptr)
 	{
         // Initialize local search instances per thread

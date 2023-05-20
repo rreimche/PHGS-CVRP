@@ -40,7 +40,6 @@ public:
 	//Individual offspring;			// First individual to be used as input for the crossover
     std::vector<Individual> offsprings;
     const int nMaxThreads;                // Max number of threads
-    const int exchangeRate;               // Rate, at which populations exchange their best individuals
     Individual* bestOfTheBest;            // Best Solution
 
 	// OX Crossover

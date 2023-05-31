@@ -132,12 +132,21 @@ Genetic::Genetic(Params & params) :
     nMaxThreads(omp_get_max_threads()),
     bestOfTheBest(nullptr)
 	{
-        // Initialize local search instances per thread
-        for (int i = 0; i < nMaxThreads; i++) {
+
+        // Avoid dangling references by reserving the memory in advance
+        splits.reserve(nMaxThreads);
+        populations.reserve(nMaxThreads);
+
+        // Populate vectors without dependencies on each other
+        for(int i = 0; i < nMaxThreads; i++) {
             splits.emplace_back(params);
             localSearchPerThread.emplace_back(params);
-            populations.emplace_back(params, splits[i], localSearchPerThread[i]);
             offsprings.emplace_back(params);
+        }
+
+        // Populate vectors with dependencies on prior results
+        for (int i = 0; i < nMaxThreads; i++) {
+            populations.emplace_back(params, splits[i], localSearchPerThread[i]);
         }
 }
 

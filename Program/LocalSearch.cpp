@@ -117,7 +117,7 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 	// Register the solution produced by the LS in the individual
 	exportIndividual(indiv);
 
-    if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" EXPORTED INDIVIDUAL IN LOCAL SEARCH" << std::endl;
+    //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" EXPORTED INDIVIDUAL IN LOCAL SEARCH" << std::endl;
 }
 
 void LocalSearch::setLocalVariablesRouteU()

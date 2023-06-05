@@ -189,6 +189,7 @@ private:
 	// Constructor
 	LocalSearch(Params & params);
 
+    // Copy constructor to avoid dangling references
     LocalSearch(const LocalSearch & ls);
 };
 

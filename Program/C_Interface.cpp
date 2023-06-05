@@ -10,12 +10,13 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <omp.h>
 
 Solution *prepare_solution(Individual* bestOfTheBest, Params &params)
 {
 	// Preparing the best solution
 	Solution *sol = new Solution;
-	sol->time = (double)(clock() - params.startTime) / (double)CLOCKS_PER_SEC;
+	sol->time = omp_get_wtime() - params.startTime;
 
 	if (bestOfTheBest != nullptr) {
 		// Best individual

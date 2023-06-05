@@ -19,7 +19,7 @@ void Genetic::run()
 
         /* INITIAL POPULATION */
         populations[thread_num].generatePopulation();
-        //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" DONE WITH POPULATION INIT" << std::endl;
+        if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" DONE WITH POPULATION INIT" << std::endl;
 
         Population& population = populations[thread_num];
         LocalSearch& localSearch = localSearchPerThread[thread_num];
@@ -30,17 +30,17 @@ void Genetic::run()
 
         if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" STARTING GENETIC ALGORITHM" << std::endl;
 
-        for (int nbIterThread = 0 ; nbIterNonProd <= paramsPerThread[thread_num].ap.nbIter && (paramsPerThread[thread_num].ap.timeLimit == 0 || (double)(clock()-paramsPerThread[thread_num].startTime)/(double)CLOCKS_PER_SEC < paramsPerThread[thread_num].ap.timeLimit) ; nbIterThread++)
+        for (int nbIterThread = 0 ; nbIterNonProd <= paramsPerThread[thread_num].ap.nbIter && (paramsPerThread[thread_num].ap.timeLimit == 0 || (omp_get_wtime()-paramsGlobal.startTime) < paramsGlobal.ap.timeLimit) ; nbIterThread++)
         {
             /* SELECTION AND CROSSOVER */
             crossoverOX(offspring, population.getBinaryTournament(), population.getBinaryTournament(), split);
 
-            if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" FINISHED CROSSOVER IN GENERATION " << nbIterThread << std::endl;
+            //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" FINISHED CROSSOVER IN GENERATION " << nbIterThread << std::endl;
 
             /* LOCAL SEARCH */
             localSearch.run(offspring, paramsPerThread[thread_num].penaltyCapacity, paramsPerThread[thread_num].penaltyDuration);
 
-            if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" FINISHED LOCAL SEARCH IN GENERATION " << nbIterThread << std::endl;
+            //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" FINISHED LOCAL SEARCH IN GENERATION " << nbIterThread << std::endl;
 
             /* POPULATION MANAGEMENT AND REPAIR PROCEDURE */
             bool isNewBest = population.addIndividual(offspring,true);
@@ -69,17 +69,22 @@ void Genetic::run()
                 //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" HAS RESTARTED THE POPULATION IN GENERATION " << nbIterThread << std::endl;
             }
 
-            if((nbIterThread + 1) % paramsPerThread[thread_num].ap.exchangeRate == 0){
+            if((nbIterThread + 1) % paramsPerThread[thread_num].ap.exchangeRate == 0) {
 
                 #pragma omp barrier
                 // At this point, all the threads have finished the iteration
 
-                //TODO exchange individuals
-                bestOfTheBest = getBestOfTheBest();
-                for (int i = 0; i < nMaxThreads; ++i) {
-                    populations[i].addIndividual(*bestOfTheBest, true);
+                #pragma omp single
+                {
+                    //TODO exchange individuals
+                    bestOfTheBest = getBestOfTheBest();
+                    /*for (int i = 0; i < nMaxThreads; ++i) {
+                        populations[i].addIndividual(*bestOfTheBest, true);
+                    }*/
+                    //std::cout << "THREAD " << thread_num << " AT BARRIER " << std::endl;
                 }
-                //std::cout << "THREAD " << thread_num << " AT BARRIER " << std::endl;
+
+                populations[thread_num].addIndividual(*bestOfTheBest, true);
 
                 #pragma omp barrier
                 // At this point, exchange between the threads is finished
@@ -89,7 +94,7 @@ void Genetic::run()
         }
     }
 
-	if (paramsGlobal.verbose) std::cout << "----- PARALLEL GENETIC ALGORITHM FINISHED. TIME SPENT: " << (double)(clock() - paramsGlobal.startTime) / (double)CLOCKS_PER_SEC << std::endl;
+	if (paramsGlobal.verbose) std::cout << "----- PARALLEL GENETIC ALGORITHM FINISHED. TIME SPENT: " << (omp_get_wtime() - paramsGlobal.startTime) << std::endl;
 }
 
 void Genetic::crossoverOX(Individual &result, const Individual &parent1, const Individual &parent2, Split &split)

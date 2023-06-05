@@ -1,4 +1,5 @@
 #include "Params.h"
+#include <omp.h>
 
 // The universal constructor for both executable and shared library
 // When the executable is run from the commandline,
@@ -20,7 +21,7 @@ Params::Params(
 	  vehicleCapacity(vehicleCapacity), timeCost(dist_mtx), verbose(verbose)
 {
 	// This marks the starting time of the algorithm
-	startTime = clock();
+	startTime = omp_get_wtime();
 
 	nbClients = (int)demands.size() - 1; // Need to substract the depot from the number of nodes
 	totalDemand = 0.;

@@ -63,7 +63,7 @@ public:
 	double penaltyDuration;				// Penalty for one unit of duration excess (adapted through the search)
 
 	/* START TIME OF THE ALGORITHM */
-	clock_t startTime;                  // Start time of the optimization (set when Params is constructed)
+	double startTime;                  // Start time of the optimization (set when Params is constructed)
 
 	/* RANDOM NUMBER GENERATOR */       
 	std::minstd_rand ran;               // Using the fastest and simplest LCG. The quality of random numbers is not critical for the LS, but speed is

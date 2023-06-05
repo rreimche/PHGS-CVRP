@@ -76,6 +76,9 @@ void Genetic::run()
 
                 //TODO exchange individuals
                 bestOfTheBest = getBestOfTheBest();
+                for (int i = 0; i < nMaxThreads; ++i) {
+                    populations[i].addIndividual(*bestOfTheBest, true);
+                }
                 //std::cout << "THREAD " << thread_num << " AT BARRIER " << std::endl;
 
                 #pragma omp barrier
@@ -162,6 +165,7 @@ Genetic::Genetic(Params & params) :
 
         // Populate vectors without dependencies on each other
         for(int i = 0; i < nMaxThreads; i++) {
+            paramsPerThread[i].ran = std::minstd_rand(i);
             splits.emplace_back(paramsPerThread[i]);
             localSearchPerThread.emplace_back(paramsPerThread[i]);
             offsprings.emplace_back(paramsPerThread[i]);

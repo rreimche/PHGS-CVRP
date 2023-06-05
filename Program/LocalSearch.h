@@ -188,6 +188,8 @@ private:
 
 	// Constructor
 	LocalSearch(Params & params);
+
+    LocalSearch(const LocalSearch & ls);
 };
 
 #endif

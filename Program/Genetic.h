@@ -29,8 +29,9 @@ SOFTWARE.*/
 class Genetic
 {
 public:
-
-	Params & params;				// Problem parameters
+    const int nMaxThreads;                // Max number of threads
+    Params & paramsGlobal;                   // global copy of problem parameters
+	std::vector<Params> paramsPerThread;	// Problem parameters
 	//Split split;					// Split algorithm
     std::vector<Split> splits;       // Split algorithms one per thread
 	//LocalSearch localSearch;		// Local Search structure
@@ -39,7 +40,7 @@ public:
     std::vector<Population> populations; // Populations, one per thread
 	//Individual offspring;			// First individual to be used as input for the crossover
     std::vector<Individual> offsprings;
-    const int nMaxThreads;                // Max number of threads
+
     Individual* bestOfTheBest;            // Best Solution
 
 	// OX Crossover

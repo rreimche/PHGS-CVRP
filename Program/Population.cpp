@@ -9,15 +9,21 @@ void Population::generatePopulation()
 		Individual randomIndiv(params);
 		split.generalSplit(randomIndiv, params.nbVehicles);
 		localSearch.run(randomIndiv, params.penaltyCapacity, params.penaltyDuration);
-		addIndividual(randomIndiv, true);
+
+        //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() << "----- BUILDING INITIAL POPULATION: FINISHED LOCAL SEARCH" << std::endl;
+
+        addIndividual(randomIndiv, true);
 		if (!randomIndiv.eval.isFeasible && params.ran() % 2 == 0)  // Repair half of the solutions in case of infeasibility
 		{
 			localSearch.run(randomIndiv, params.penaltyCapacity*10., params.penaltyDuration*10.);
 			if (randomIndiv.eval.isFeasible) addIndividual(randomIndiv, false);
 		}
 	}
+
+    //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() << "----- BUILDING INITIAL POPULATION DONE" << std::endl;
 }
 
+// Population management
 bool Population::addIndividual(const Individual & indiv, bool updateFeasible)
 {
 	if (updateFeasible)
@@ -128,7 +134,7 @@ void Population::removeWorstBiasedFitness(SubPopulation & pop)
 
 void Population::restart()
 {
-	if (params.verbose) std::cout << "----- RESET: CREATING A NEW POPULATION -----" << std::endl;
+	//if (params.verbose) std::cout << "----- RESET: CREATING A NEW POPULATION -----" << std::endl;
 	for (Individual * indiv : feasibleSubpop) delete indiv ;
 	for (Individual * indiv : infeasibleSubpop) delete indiv;
 	feasibleSubpop.clear();

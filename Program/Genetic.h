@@ -68,7 +68,8 @@ public:
 	// Constructor
 	Genetic(Params & params);
 
-    void printState(int thread, int prod, StateAvg avg) const;
+    StateAvg getState();
+    void printState(int nbIter, StateAvg avg) const;
 };
 
 #endif

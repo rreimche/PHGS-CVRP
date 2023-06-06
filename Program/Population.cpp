@@ -3,7 +3,7 @@
 
 void Population::generatePopulation()
 {
-	if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() << "----- BUILDING INITIAL POPULATION" << std::endl;
+	//if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() << "----- BUILDING INITIAL POPULATION" << std::endl;
 	for (int i = 0; i < 4*params.ap.mu && (i == 0 || params.ap.timeLimit == 0 || (omp_get_wtime() - params.startTime) < params.ap.timeLimit) ; i++)
 	{
 		Individual randomIndiv(params);

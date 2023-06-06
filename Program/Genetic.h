@@ -26,6 +26,19 @@ SOFTWARE.*/
 #include "Population.h"
 #include "Individual.h"
 
+// Averages of state/performance data over all populations at a point in time
+struct StateAvg {
+    double avgFeasibleSubpopSize = 0;
+    double avgInfeasibleSubpopSize = 0;
+    double avgFeasibleBestCosts = 0;
+    double avgInfeasibleBestCosts = 0;
+    double avgFeasibleAvgCosts = 0;
+    double avgInfeasibleAvgCosts = 0;
+    double avgFeasibleDiversity = 0;
+    double avgInfeasibleDiversity = 0;
+};
+
+
 class Genetic
 {
 public:
@@ -54,6 +67,8 @@ public:
 
 	// Constructor
 	Genetic(Params & params);
+
+    void printState(int thread, int prod, StateAvg avg) const;
 };
 
 #endif

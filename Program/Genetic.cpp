@@ -19,7 +19,7 @@ void Genetic::run()
 
         /* INITIAL POPULATION */
         populations[thread_num].generatePopulation();
-        if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" DONE WITH POPULATION INIT" << std::endl;
+        //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" DONE WITH POPULATION INIT" << std::endl;
 
         Population& population = populations[thread_num];
         LocalSearch& localSearch = localSearchPerThread[thread_num];
@@ -58,7 +58,7 @@ void Genetic::run()
 
             /* DIVERSIFICATION, PENALTY MANAGEMENT AND TRACES */
             if (nbIterThread % paramsPerThread[thread_num].ap.nbIterPenaltyManagement == 0) population.managePenalties();
-            if (nbIterThread % paramsPerThread[thread_num].ap.nbIterTraces == 0) population.printState(nbIterThread, nbIterNonProd, thread_num);
+            //if (nbIterThread % paramsPerThread[thread_num].ap.nbIterTraces == 0) population.printState(nbIterThread, nbIterNonProd, thread_num);
 
             /* FOR TESTS INVOLVING SUCCESSIVE RUNS UNTIL A TIME LIMIT: WE RESET THE ALGORITHM/POPULATION EACH TIME maxIterNonProd IS ATTAINED*/
             if (paramsPerThread[thread_num].ap.timeLimit != 0 && nbIterNonProd == paramsPerThread[thread_num].ap.nbIter)
@@ -81,10 +81,63 @@ void Genetic::run()
                     /*for (int i = 0; i < nMaxThreads; ++i) {
                         populations[i].addIndividual(*bestOfTheBest, true);
                     }*/
+
+                    populations[thread_num].addIndividual(*bestOfTheBest, true);
+
                     //std::cout << "THREAD " << thread_num << " AT BARRIER " << std::endl;
+                    if (paramsGlobal.verbose && (nbIterThread + 1) % paramsGlobal.ap.nbIterTraces == 0) {
+                        /*std::vector<int> feasibleSubpopSizes = std::vector(nMaxThreads, 0);
+                        std::vector<int> infeasibleSubpopSizes = std::vector(nMaxThreads, 0);
+                        std::vector<int> feasibleBestCosts = std::vector(nMaxThreads, 0);
+                        std::vector<int> infeasibleBestCosts = std::vector(nMaxThreads, 0);
+                        std::vector<int> feasibleAvgCosts = std::vector(nMaxThreads, 0);
+                        std::vector<int> infeasibleAvgCosts = std::vector(nMaxThreads, 0);*/
+
+                        int sumFeasibleSubpopSize = 0;
+                        int sumInfeasibleSubpopSize = 0;
+                        double sumFeasibleBestCosts = 0;
+                        double sumInfeasibleBestCosts = 0;
+                        double sumFeasibleAvgCosts = 0;
+                        double sumInfeasibleAvgCosts = 0;
+                        double sumFeasibleDiversity = 0;
+                        double sumInfeasibleDiversity = 0;
+
+                        StateAvg stateAvg;
+
+                        for(int i = 0; i < nMaxThreads; i++){
+                            /*feasibleSubpopSizes[i] = populations[i].getFeasibleSubpopSize();
+                            infeasibleSubpopSizes[i] = populations[i].getInfeasibleSubpopSize();
+                            feasibleBestCosts[i] = populations[i].getBestFeasible()->eval.penalizedCost;
+                            infeasibleBestCosts[i] = populations[i].getBestInfeasible()->eval.penalizedCost;
+                            feasibleAvgCosts[i] = populations[i].getAverageFeasibleCost();
+                            feasibleAvgCosts[i] = populations[i].getAverageInfeasibleCost();*/
+
+                            // TODO getFeasible can return NULL
+                            sumFeasibleSubpopSize += populations[i].getFeasibleSubpopSize();
+                            sumInfeasibleSubpopSize += populations[i].getInfeasibleSubpopSize();
+                            sumFeasibleBestCosts += populations[i].getBestFeasible()->eval.penalizedCost;
+                            sumInfeasibleBestCosts += populations[i].getBestInfeasible()->eval.penalizedCost;
+                            sumFeasibleAvgCosts += populations[i].getAverageFeasibleCost();
+                            sumInfeasibleAvgCosts += populations[i].getAverageInfeasibleCost();
+                            sumFeasibleDiversity += populations[i].getFeasibleDiversity();
+                            sumInfeasibleDiversity += populations[i].getInfeasibleDiversity();
+                        }
+
+
+                        stateAvg.avgFeasibleSubpopSize = sumFeasibleSubpopSize / nMaxThreads;
+                        stateAvg.avgInfeasibleSubpopSize = sumInfeasibleSubpopSize / nMaxThreads;
+                        stateAvg.avgFeasibleBestCosts = sumFeasibleBestCosts / nMaxThreads;
+                        stateAvg.avgInfeasibleBestCosts = sumInfeasibleBestCosts / nMaxThreads;
+                        stateAvg.avgFeasibleAvgCosts = sumFeasibleAvgCosts / nMaxThreads;
+                        stateAvg.avgInfeasibleAvgCosts = sumInfeasibleAvgCosts / nMaxThreads;
+                        stateAvg.avgFeasibleDiversity = sumFeasibleDiversity / nMaxThreads;
+                        stateAvg.avgInfeasibleDiversity = sumInfeasibleDiversity / nMaxThreads;
+
+                        printState(nbIterThread, nbIterNonProd, stateAvg);
+                    }
                 }
 
-                populations[thread_num].addIndividual(*bestOfTheBest, true);
+
 
                 #pragma omp barrier
                 // At this point, exchange between the threads is finished
@@ -126,7 +179,7 @@ void Genetic::crossoverOX(Individual &result, const Individual &parent1, const I
 	for (int i = 1; i <= paramsPerThread[thread_num].nbClients; i++)
 	{
 		int temp = parent2.chromT[(end + i) % paramsPerThread[thread_num].nbClients];
-		if (freqClient[temp] == false)
+		if (!freqClient[temp])
 		{
 			result.chromT[j % paramsPerThread[thread_num].nbClients] = temp;
 			j++;
@@ -155,6 +208,22 @@ Individual* Genetic::getBestOfTheBest(){
     return newBestOfTheBest;
 }
 
+// TODO best costs must be best, not average
+void Genetic::printState(int nbIter, int nbIterNoImprovement, StateAvg avg) const {
+    std::printf("It %6d %6d | T(s) %.2f", nbIter + 1, nbIterNoImprovement, omp_get_wtime()-paramsGlobal.startTime);
+
+    if(avg.avgFeasibleSubpopSize != 0) std::printf(" | Feas (n b ab aa) %.2f %.2f %.2f %.2f", avg.avgFeasibleSubpopSize, bestOfTheBest->eval.penalizedCost, avg.avgFeasibleBestCosts, avg.avgFeasibleAvgCosts);
+    else std::printf(" | NO-FEASIBLE");
+
+    if (avg.avgInfeasibleSubpopSize != 0) std::printf(" | Inf (n ab aa) %.2f %.2f %.2f", avg.avgInfeasibleSubpopSize, avg.avgInfeasibleBestCosts, avg.avgInfeasibleAvgCosts);
+    else std::printf(" | NO-INFEASIBLE");
+
+    std::printf(" | Div %.2f %.2f", avg.avgFeasibleDiversity, avg.avgInfeasibleDiversity);
+    /* std::printf(" | Feas %.2f %.2f", (double)std::count(listFeasibilityLoad.begin(), listFeasibilityLoad.end(), true) / (double)listFeasibilityLoad.size(), (double)std::count(listFeasibilityDuration.begin(), listFeasibilityDuration.end(), true) / (double)listFeasibilityDuration.size());
+    std::printf(" | Pen %.2f %.2f", params.penaltyCapacity, params.penaltyDuration);*/
+    std::cout << std::endl;
+}
+
 Genetic::Genetic(Params & params) : 
     //nMaxThreads(omp_get_max_threads()),
     nMaxThreads(omp_get_max_threads()),
@@ -181,4 +250,6 @@ Genetic::Genetic(Params & params) :
             populations.emplace_back(paramsPerThread[i], splits[i], localSearchPerThread[i]);
         }
 }
+
+
 

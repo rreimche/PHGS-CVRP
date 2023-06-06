@@ -77,6 +77,13 @@ class Population
    // Accesses the best found solution at all time
    const Individual * getBestFound();
 
+   int getFeasibleSubpopSize();
+   int getInfeasibleSubpopSize();
+   double getAverageFeasibleCost();
+   double getAverageInfeasibleCost();
+   double getFeasibleDiversity();
+   double getInfeasibleDiversity();
+
    // Prints population state
    void printState(int nbIter, int nbIterNoImprovement, int thread_num);
 

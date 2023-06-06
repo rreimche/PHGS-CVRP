@@ -301,6 +301,36 @@ void Population::exportCVRPLibFormat(const Individual & indiv, std::string fileN
 	else std::cout << "----- IMPOSSIBLE TO OPEN: " << fileName << std::endl;
 }
 
+int Population::getFeasibleSubpopSize()
+{
+    return feasibleSubpop.size();
+}
+
+int Population::getInfeasibleSubpopSize()
+{
+    return infeasibleSubpop.size();
+}
+
+double Population::getAverageFeasibleCost()
+{
+    return getAverageCost(feasibleSubpop);
+}
+
+double Population::getAverageInfeasibleCost()
+{
+    return getAverageCost(infeasibleSubpop);
+}
+
+double Population::getFeasibleDiversity()
+{
+    return getDiversity(feasibleSubpop);
+}
+
+double Population::getInfeasibleDiversity()
+{
+    return getDiversity(infeasibleSubpop);
+}
+
 Population::Population(Params & params, Split & split, LocalSearch & localSearch) : params(params), split(split), localSearch(localSearch), bestSolutionRestart(params), bestSolutionOverall(params)
 {
 	listFeasibilityLoad = std::list<bool>(params.ap.nbIterPenaltyManagement, true);

@@ -81,6 +81,7 @@ void Genetic::run()
                     bestOfTheBest = getBestOfTheBest();
                 }
 
+                // TODO can we have duplicates?
                 populations[thread_num].addIndividual(*bestOfTheBest, true);
 
 
@@ -213,6 +214,7 @@ void Genetic::printState(int nbIter, StateAvg avg) const {
     std::cout << std::endl;
 }
 
+//TODO add parameter for number of threads/demes
 Genetic::Genetic(Params & params) : 
     //nMaxThreads(omp_get_max_threads()),
     nMaxThreads(omp_get_max_threads()),

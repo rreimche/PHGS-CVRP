@@ -39,6 +39,8 @@ bool Population::addIndividual(const Individual & indiv, bool updateFeasible)
 
 	// Create a copy of the individual and updade the proximity structures calculating inter-individual distances
 	Individual * myIndividual = new Individual(indiv);
+    // If the individual is created using data from another population, it has some information to clear
+    myIndividual->indivsPerProximity.clear();
 	for (Individual * myIndividual2 : subpop)
 	{
 		double myDistance = brokenPairsDistance(*myIndividual,*myIndividual2);

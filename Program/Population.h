@@ -99,10 +99,7 @@ class Population
    // Returns the average solution value among the 50% best individuals in the subpopulation
    double getAverageCost(const SubPopulation & pop);
 
-   // Exports in a file the history of solution improvements
-   void exportSearchProgress(std::string fileName, std::string instanceName);
-
-   // Exports an Individual in CVRPLib format
+    // Exports an Individual in CVRPLib format
    void exportCVRPLibFormat(const Individual & indiv, std::string fileName);
 
    // Constructor

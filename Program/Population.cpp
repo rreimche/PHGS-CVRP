@@ -277,13 +277,6 @@ double Population::getAverageCost(const SubPopulation & pop)
 	else return -1.0;
 }
 
-void Population::exportSearchProgress(std::string fileName, std::string instanceName)
-{
-	std::ofstream myfile(fileName);
-	for (std::pair<double, double> state : searchProgress)
-		myfile << instanceName << ";" << params.ap.seed << ";" << state.second << ";" << (double)state.first / (double)CLOCKS_PER_SEC << std::endl;
-}
-
 void Population::exportCVRPLibFormat(const Individual & indiv, std::string fileName)
 {
 	std::ofstream myfile(fileName);

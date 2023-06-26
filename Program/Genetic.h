@@ -53,6 +53,7 @@ public:
     std::vector<Population> populations; // Populations, one per thread
 	//Individual offspring;			// First individual to be used as input for the crossover
     std::vector<Individual> offsprings;
+    std::vector<std::pair<double, double>> searchProgress; // Keeps tracks of the time stamps of successive best solutions
 
     Individual* bestOfTheBest;            // Best Solution
 
@@ -70,6 +71,9 @@ public:
 
     StateAvg getState();
     void printState(int nbIter, StateAvg avg) const;
+
+    void exportSearchProgress(std::string fileName, std::string instanceName);
+
 };
 
 #endif

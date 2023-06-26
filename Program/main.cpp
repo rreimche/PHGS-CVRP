@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 		{
 			if (params.verbose) std::cout << "----- WRITING BEST SOLUTION IN : " << commandline.pathSolution << std::endl;
 			solver.populations[0].exportCVRPLibFormat(*solver.bestOfTheBest,commandline.pathSolution);
-			solver.populations[0].exportSearchProgress(commandline.pathSolution + ".PG.csv", commandline.pathInstance);
+			solver.exportSearchProgress(commandline.pathSolution + ".PG.csv", commandline.pathInstance);
 		}
 	}
 	catch (const string& e) { std::cout << "EXCEPTION | " << e << std::endl; }

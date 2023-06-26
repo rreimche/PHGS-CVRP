@@ -93,6 +93,7 @@ void Genetic::run()
             #pragma omp single
             {
                 if (paramsGlobal.verbose && (nbIterThread + 1) % paramsGlobal.ap.nbIterTraces == 0) {
+                    searchProgress.push_back({ omp_get_wtime() - paramsGlobal.startTime , bestOfTheBest->eval.penalizedCost });
                     StateAvg state = getState();
                     printState(nbIterThread, state);
                 }
@@ -101,7 +102,9 @@ void Genetic::run()
         }
     }
 
+    searchProgress.push_back({ omp_get_wtime() - paramsGlobal.startTime , bestOfTheBest->eval.penalizedCost });
 	if (paramsGlobal.verbose) std::cout << "----- PARALLEL GENETIC ALGORITHM FINISHED. TIME SPENT: " << (omp_get_wtime() - paramsGlobal.startTime) << std::endl;
+
 }
 
 void Genetic::crossoverOX(Individual &result, const Individual &parent1, const Individual &parent2, Split &split)
@@ -212,6 +215,13 @@ void Genetic::printState(int nbIter, StateAvg avg) const {
     std::printf(" | Div %.2f %.2f", avg.avgFeasibleDiversity, avg.avgInfeasibleDiversity);
 
     std::cout << std::endl;
+}
+
+void Genetic::exportSearchProgress(std::string fileName, std::string instanceName)
+{
+    std::ofstream myfile(fileName);
+    for (std::pair<double, double> state : searchProgress)
+    myfile << instanceName << ";" << paramsGlobal.ap.seed << ";" << state.second << ";" << state.first << std::endl;
 }
 
 //TODO add parameter for number of threads/demes

@@ -1,6 +1,9 @@
 # Build directory
 build
 
+# Batch solutions directory
+batch
+
 # Test build files
 Test/CMakeFiles/
 Test/CMakeCache.txt

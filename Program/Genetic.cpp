@@ -10,6 +10,8 @@ void Genetic::run()
         if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" DONE WITH POPULATION INIT" << std::endl;
     }*/
 
+    int nbIterGlobal = 0;
+
 
 #pragma omp parallel num_threads(nMaxThreads)
     {
@@ -93,16 +95,18 @@ void Genetic::run()
             #pragma omp single
             {
                 if (paramsGlobal.verbose && (nbIterThread + 1) % paramsGlobal.ap.nbIterTraces == 0) {
-                    searchProgress.push_back({ omp_get_wtime() - paramsGlobal.startTime , bestOfTheBest->eval.penalizedCost });
+                    searchProgress.push_back({ omp_get_wtime() - paramsGlobal.startTime , nbIterThread + 1, bestOfTheBest->eval.penalizedCost });
                     StateAvg state = getState();
                     printState(nbIterThread, state);
                 }
+
+                nbIterGlobal++;
             }
 
         }
     }
 
-    searchProgress.push_back({ omp_get_wtime() - paramsGlobal.startTime , bestOfTheBest->eval.penalizedCost });
+    searchProgress.push_back({ omp_get_wtime() - paramsGlobal.startTime, nbIterGlobal + 1, bestOfTheBest->eval.penalizedCost });
 	if (paramsGlobal.verbose) std::cout << "----- PARALLEL GENETIC ALGORITHM FINISHED. TIME SPENT: " << (omp_get_wtime() - paramsGlobal.startTime) << std::endl;
 
 }
@@ -220,8 +224,8 @@ void Genetic::printState(int nbIter, StateAvg avg) const {
 void Genetic::exportSearchProgress(std::string fileName, std::string instanceName)
 {
     std::ofstream myfile(fileName);
-    for (std::pair<double, double> state : searchProgress)
-    myfile << instanceName << ";" << paramsGlobal.ap.seed << ";" << state.second << ";" << state.first << std::endl;
+    for (std::tuple<double, int, double> state : searchProgress)
+    myfile << instanceName << ";" << paramsGlobal.ap.seed << ";" << std::get<2>(state) << ";" << std::get<1>(state) << ";" << std::get<0>(state) << std::endl;
 }
 
 //TODO add parameter for number of threads/demes

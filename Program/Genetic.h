@@ -53,7 +53,8 @@ public:
     std::vector<Population> populations; // Populations, one per thread
 	//Individual offspring;			// First individual to be used as input for the crossover
     std::vector<Individual> offsprings;
-    std::vector<std::pair<double, double>> searchProgress; // Keeps tracks of the time stamps of successive best solutions
+    // Keeps tracks of the time stamps of successive best solutions: {time, generation, value}
+    std::vector<std::tuple<double, int, double>> searchProgress;
 
     Individual* bestOfTheBest;            // Best Solution
 

@@ -35,6 +35,7 @@ public:
 
 	int nbVeh		 = INT_MAX;		// Number of vehicles. Default value: infinity
 	std::string pathInstance;		// Instance path
+    std::string instanceName;
 	std::string pathSolution;		// Solution path
 	bool verbose     = true;
 	bool isRoundingInteger = true;
@@ -50,6 +51,7 @@ public:
 		else
 		{
 			pathInstance = std::string(argv[1]);
+            instanceName = stripPathAndExtension(pathInstance);
 			pathSolution = std::string(argv[2]);
 			for (int i = 3; i < argc; i += 2)
 			{
@@ -121,5 +123,19 @@ public:
 		std::cout << "--------------------------------------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << std::endl;
 	};
+
+    std::string stripPathAndExtension(const std::string& filePath) {
+        // Find the last occurrence of the path separator "/"
+        size_t lastSeparatorPos = filePath.find_last_of("/");
+
+        // Find the last occurrence of the dot (.) starting from the last separator position
+        size_t extensionPos = filePath.find_last_of(".", std::string::npos);
+
+        // Extract the substring containing only the filename
+        std::string filename = filePath.substr(lastSeparatorPos + 1, extensionPos - lastSeparatorPos - 1);
+
+        return filename;
+    }
+
 };
 #endif

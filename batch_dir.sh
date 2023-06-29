@@ -14,7 +14,7 @@ done
 for dir in */; do
   if [ -d "$dir" ]; then
     cd "$dir" || exit
-    ../../batch.sh ../../build/hgs ../../Instances/CVRP
+    ../../batch.sh ../../build/hgs ../../Instances/CVRP 1
     cd ..
   fi
 done

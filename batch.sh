@@ -19,6 +19,15 @@ for FILENAME in "$DIRECTORY"/*; do
 
     count=$((count + 1))  # Increment the counter
 
+    # Check the exit status of the executable
+    if [ $? -eq 0 ]; then
+      # Execution succeeded, delete the file
+      rm "$FILENAME"
+    else
+      # Execution failed, handle the failure accordingly
+      echo "Execution of $EXECUTABLE_FILE failed for $FILENAME"
+    fi
+
     # Check if the counter exceeds the limit
     if [ ! -z "$LIMIT" ] && [ "$count" -ge "$LIMIT" ]; then
       break  # Exit the loop if the limit is reached

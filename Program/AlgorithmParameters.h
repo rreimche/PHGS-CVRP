@@ -26,7 +26,6 @@ struct AlgorithmParameters {
 	int useSwapStar;		// Use SWAP* local search or not. Default value: 1. Only available when coordinates are provided.
 
     int exchangeRate;               // Rate, at which populations exchange their best individuals
-    int exchangeNumber;              // Number of individuals to be exchanged by populations with exchangeRate
 };
 
 #ifdef __cplusplus

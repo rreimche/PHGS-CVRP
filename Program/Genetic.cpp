@@ -95,7 +95,7 @@ void Genetic::run()
             #pragma omp single
             {
                 if (paramsGlobal.verbose && (nbIterThread + 1) % paramsGlobal.ap.nbIterTraces == 0) {
-                    searchProgress.push_back({ omp_get_wtime() - paramsGlobal.startTime , nbIterThread + 1, bestOfTheBest->eval.penalizedCost });
+                    searchProgress.push_back(std::make_tuple(omp_get_wtime() - paramsGlobal.startTime , nbIterThread + 1, bestOfTheBest->eval.penalizedCost));
                     StateAvg state = getState();
                     printState(nbIterThread, state);
                 }
@@ -106,7 +106,7 @@ void Genetic::run()
         }
     }
 
-    searchProgress.push_back({ omp_get_wtime() - paramsGlobal.startTime, nbIterGlobal + 1, bestOfTheBest->eval.penalizedCost });
+    searchProgress.push_back(std::make_tuple(omp_get_wtime() - paramsGlobal.startTime, nbIterGlobal + 1, bestOfTheBest->eval.penalizedCost));
 	if (paramsGlobal.verbose) std::cout << "----- PARALLEL GENETIC ALGORITHM FINISHED. TIME SPENT: " << (omp_get_wtime() - paramsGlobal.startTime) << std::endl;
 
 }

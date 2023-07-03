@@ -1,27 +1,19 @@
+# PHGS-CVRP: A Parallel Hybrid Genetic Search for the CVRP
 
-[![CI_Build](https://github.com/vidalt/HGS-CVRP/actions/workflows/CI_Build.yml/badge.svg?branch=main)](https://github.com/vidalt/HGS-CVRP/actions/workflows/CI_Build.yml)
+This is a parallel implementation of the Hybrid Genetic Search Algorithm for the CVRP [1], [2]. It uses OpenMP to parallelize
+the whole algorithm. It uses as many threads as OpenMP offers. Every thread manages its own randomly generated population.
+Every process uses different seed for the random number generator, thus increasing randomness in each process' starting
+position and direction in the search space.
 
-# HGS-CVRP: A modern implementation of the Hybrid Genetic Search for the CVRP
-
-This is a modern implementation of the Hybrid Genetic Search (HGS) with Advanced Diversity Control of [1], specialized to the Capacitated Vehicle Routing Problem (CVRP).
-
-This algorithm has been designed to be transparent, specialized, and highly concise, retaining only the core elements that make this method successful.
-Beyond a simple reimplementation of the original algorithm, this code also includes speed-up strategies and methodological improvements learned over the past decade of research and dedicated to the CVRP.
-In particular, it relies on an additional neighborhood called SWAP*, which consists in exchanging two customers between different routes without an insertion in place.
+Some parts of this README are inherited from [2].
 
 ## References
 
-When using this algorithm (or part of it) in derived academic studies, please refer to the following works:
-
-[1] Vidal, T., Crainic, T. G., Gendreau, M., Lahrichi, N., Rei, W. (2012). 
-A hybrid genetic algorithm for multidepot and periodic vehicle routing problems. Operations Research, 60(3), 611-624. 
-https://doi.org/10.1287/opre.1120.1048 (Available [HERE](https://w1.cirrelt.ca/~vidalt/papers/HGS-CIRRELT-2011.pdf) in technical report form).
-
-[2] Vidal, T. (2022). Hybrid genetic search for the CVRP: Open-source implementation and SWAP* neighborhood. Computers & Operations Research, 140, 105643.
+[1] Vidal, T. (2022). Hybrid genetic search for the CVRP: Open-source implementation and SWAP* neighborhood. Computers & Operations Research, 140, 105643.
 https://doi.org/10.1016/j.cor.2021.105643 (Available [HERE](https://arxiv.org/abs/2012.10384) in technical report form).
 
-We also recommend referring to the Github version of the code used, as future versions may achieve better performance as the code evolves.
-The version associated with the results presented in [2] is [v1.0.0](https://github.com/vidalt/HGS-CVRP/releases/tag/v1.0.0).
+[2] https://github.com/vidalt/HGS-CVRP/releases/tag/v1.0.0
+
 
 ## Other programming languages
 
@@ -32,15 +24,6 @@ There exist wrappers for this code in the following languages:
 
 We encourage you to consider using these wrappers in your different projects.
 Please contact me if you wish to list other wrappers and interfaces in this section.
-
-## Scope
-
-This code has been designed to solve the "canonical" Capacitated Vehicle Routing Problem (CVRP).
-It can also directly handle asymmetric distances as well as duration constraints.
-
-This code version has been designed and calibrated for medium-scale instances with up to 1,000 customers. 
-It is **not** designed in its current form to run very-large scale instances (e.g., with over 5,000 customers), as this requires additional solution strategies (e.g., decompositions and additional neighborhood limitations).
-If you need to solve problems outside of this algorithm's scope, do not hesitate to contact me at <thibaut.vidal@polymtl.ca>.
 
 ## Compiling the executable 
 
@@ -55,11 +38,6 @@ make bin
 ```
 This will generate the executable file `hgs` in the `build` directory.
 
-Test with:
-```console
-ctest -R bin --verbose
-```
-
 ## Running the algorithm
 
 After building the executable, try an example: 
@@ -72,7 +50,7 @@ The following options are supported:
 Call with: ./hgs instancePath solPath [-it nbIter] [-t myCPUtime] [-bks bksPath] [-seed mySeed] [-veh nbVehicles] [-log verbose]
 [-it <int>] sets a maximum number of iterations without improvement. Defaults to 20,000                                     
 [-t <double>] sets a time limit in seconds. If this parameter is set, the code will be run iteratively until the time limit           
-[-seed <int>] sets a fixed seed. Defaults to 0                                                                                    
+[-seed <int>] [Deprecated, since every process uses its own seed] sets a fixed seed. Defaults to 0                                                                                    
 [-veh <int>] sets a prescribed fleet size. Otherwise a reasonable UB on the fleet size is calculated                      
 [-round <bool>] rounding the distance to the nearest integer or not. It can be 0 (not rounding) or 1 (rounding). Defaults to 1. 
 [-log <bool>] sets the verbose level of the algorithm log. It can be 0 or 1. Defaults to 1.                                       
@@ -97,17 +75,17 @@ To change this behavior (e.g., when testing on the CMT or Golden instances), giv
 The progress of the algorithm in the standard output will be displayed as:
 
 ``
-It [N1] [N2] | T(s) [T] | Feas [NF] [BestF] [AvgF] | Inf [NI] [BestI] [AvgI] | Div [DivF] [DivI] | Feas [FeasC] [FeasD] | Pen [PenC] [PenD]
+It [N1] | T(s) [T] | Feas [NF] [BestF] [AvgF] | Inf [NI] [AvgBestI] [AvgI] | Div [DivF] [DivI] 
+
 ``
 ```
-[N1] and [N2]: Total number of iterations and iterations without improvement
-[T]: CPU time spent until now
-[NF] and [NI]: Number of feasible and infeasible solutions in the subpopulations 
-[BestF] and [BestI]: Value of the best feasible and infeasible solution in the subpopulations 
+[N1]: Total number of iterations
+[T]: Wall time spent until now
+[NF] and [NI]: Average number of feasible and infeasible solutions in the subpopulations 
+[BestF]: Value of the best feasible solution in the subpopulations 
+[AvgBestI]: Average best infeasible solution value
 [AvgF] and [AvgI]: Average value of the solutions in the feasible and infeasible subpopulations 
 [DivF] and [DivI]: Diversity of the feasible and infeasible subpopulations
-[FC] and [FD]: Percentage of naturally feasible solutions in relation to the capacity and duration constraints
-[PC] and [PD]: Current penalty level per unit of excess capacity and duration
 ```
 
 ## Code structure
@@ -130,37 +108,8 @@ In addition, additional classes have been created to facilitate interfacing:
 
 ## Compiling the shared library
 
-You can also build a shared library to call the HGS-CVRP algorithm from your code.
-
-```console
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles"
-make lib
-```
-This will generate the library file, `libhgscvrp.so` (Linux), `libhgscvrp.dylib` (macOS), or `hgscvrp.dll` (Windows),
-in the `build` directory.
-
-To test calling the shared library from a C code:
-```console
-make lib_test_c
-ctest -R lib --verbose
-```
-
-## Contributing
-
-Thank you very much for your interest in this code.
-This code is still actively maintained and evolving. Pull requests and contributions seeking to improve the code in terms of readability, usability, and performance are welcome. Development is conducted in the `dev` branch. I recommend to contact me beforehand at <thibaut.vidal@polymtl.ca> before any major rework.
-
-As a general guideline, the goal of this code is to stay **simple**, **stand-alone**, and **specialized** to the CVRP. 
-Contributions that aim to extend this approach to different variants of the vehicle routing problem should usually remain in a separate repository.
-Similarly, additional libraries or significant increases of conceptual complexity will be avoided. Indeed, when developing (meta-)heuristics, it seems always possible to do a bit better at the cost of extra conceptual complexity. The overarching goal of this code is to find a good trade-off between algorithm simplicity and performance.
-
-There are two main types of contributions:
-* Changes that do not impact the sequence of solutions found by the HGS algorithm when running `ctest` and testing other instances with a fixed seed.
-This is visible by comparing the average solution value in the population and diversity through a test run. Such contributions include refactoring, simplification, and code optimization. Pull requests of this type are likely to be integrated more quickly.
-* Changes that impact the sequence of solutions found by the algorithm.
-In this case, I recommend to contact me beforehand with (i) a detailed description of the changes, (ii) detailed results on 10 runs of the algorithm for each of the 100 instances of Uchoa et al. (2017) before and after the changes, using the same termination criterion as used in [2](https://arxiv.org/abs/2012.10384).
+The original code at [2] included a possibility to compile the code as a shared library. This repository does not aim 
+to provide the same.
 
 ## License
 
@@ -168,3 +117,4 @@ In this case, I recommend to contact me beforehand with (i) a detailed descripti
 
 - **[MIT license](http://opensource.org/licenses/mit-license.php)**
 - Copyright(c) 2020 Thibaut Vidal
+- Copyright(c) 2023 Roman Reimche

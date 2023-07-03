@@ -210,10 +210,10 @@ StateAvg Genetic::getState()
 void Genetic::printState(int nbIter, StateAvg avg) const {
     std::printf("It %6d | T(s) %.2f", nbIter + 1,  omp_get_wtime()-paramsGlobal.startTime);
 
-    if(avg.avgFeasibleSubpopSize != 0) std::printf(" | Feas (n b ab aa) %.2f %.2f %.2f %.2f", avg.avgFeasibleSubpopSize, bestOfTheBest->eval.penalizedCost, avg.avgFeasibleBestCosts, avg.avgFeasibleAvgCosts);
+    if(avg.avgFeasibleSubpopSize != 0) std::printf(" | Feas %.2f %.2f %.2f", avg.avgFeasibleSubpopSize, bestOfTheBest->eval.penalizedCost, avg.avgFeasibleAvgCosts);
     else std::printf(" | NO-FEASIBLE");
 
-    if (avg.avgInfeasibleSubpopSize != 0) std::printf(" | Inf (n ab aa) %.2f %.2f %.2f", avg.avgInfeasibleSubpopSize, avg.avgInfeasibleBestCosts, avg.avgInfeasibleAvgCosts);
+    if (avg.avgInfeasibleSubpopSize != 0) std::printf(" | Inf %.2f %.2f %.2f", avg.avgInfeasibleSubpopSize, avg.avgInfeasibleBestCosts, avg.avgInfeasibleAvgCosts);
     else std::printf(" | NO-INFEASIBLE");
 
     std::printf(" | Div %.2f %.2f", avg.avgFeasibleDiversity, avg.avgInfeasibleDiversity);

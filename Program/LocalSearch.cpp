@@ -20,7 +20,6 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 		if (loopID > 1) // Allows at least two loops since some moves involving empty routes are not checked at the first loop
 			searchCompleted = true;
 
-        //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" STARTING ROUTE IMPROVEMENT IN LOCAL SEARCH " << std::endl;
 
 		/* CLASSICAL ROUTE IMPROVEMENT (RI) MOVES SUBJECT TO A PROXIMITY RESTRICTION */
 		for (int posU = 0; posU < params.nbClients; posU++)
@@ -30,7 +29,6 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 			int lastTestRINodeU = nodeU->whenLastTestedRI;
 			nodeU->whenLastTestedRI = nbMoves;
 
-            //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" DESCENDING INTO INNER LOOP OF LOCAL SEARCH " << std::endl;
 
             // go through all the nodes, neighbouring with nodeU
 			for (int posV = 0; posV < (int)params.correlatedVertices[nodeU->cour].size(); posV++)
@@ -57,21 +55,14 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 					{
 						nodeV = nodeV->prev;
 						setLocalVariablesRouteV();
-                        //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" FINISHED setLocalVariablesV() " << std::endl;
 						if (move1()) continue; // RELOCATE
-                        //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" FINISHED move1() " << std::endl;
 						if (move2()) continue; // RELOCATE
-                        //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" FINISHED move2() " << std::endl;
 						if (move3()) continue; // RELOCATE
-                        //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" FINISHED move3() " << std::endl;
 						if (!intraRouteMove && move8()) continue; // 2-OPT*
-                        //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" FINISHED move8() " << std::endl;
 						if (!intraRouteMove && move9()) continue; // 2-OPT*
-                        //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" FINISHED move9() " << std::endl;
 					}
 				}
 			}
-            //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" FINISHED FIRST LOCAL SEARCH MOVES " << std::endl;
 
 			/* MOVES INVOLVING AN EMPTY ROUTE -- NOT TESTED IN THE FIRST LOOP TO AVOID INCREASING TOO MUCH THE FLEET SIZE */
 			if (loopID > 0 && !emptyRoutes.empty())
@@ -85,11 +76,7 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 				if (move9()) continue; // 2-OPT*
 			}
 
-            //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" FINISHED SECOND LOCAL SEARCH MOVES " << std::endl;
-
 		}
-
-        //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" FINISHED LOCAL SEARCH MOVES " << std::endl;
 
 		if (params.ap.useSwapStar == 1 && params.areCoordinatesProvided)
 		{
@@ -112,12 +99,9 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 		}
 	}
 
-    //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" FINISHED LOCAL SEARCH" << std::endl;
-
 	// Register the solution produced by the LS in the individual
 	exportIndividual(indiv);
 
-    //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" EXPORTED INDIVIDUAL IN LOCAL SEARCH" << std::endl;
 }
 
 void LocalSearch::setLocalVariablesRouteU()

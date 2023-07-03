@@ -42,17 +42,13 @@ struct StateAvg {
 class Genetic
 {
 public:
-    const int nMaxThreads;                // Max number of threads
-    Params & paramsGlobal;                   // global copy of problem parameters
-	std::vector<Params> paramsPerThread;	// Problem parameters
-	//Split split;					// Split algorithm
-    std::vector<Split> splits;       // Split algorithms one per thread
-	//LocalSearch localSearch;		// Local Search structure
+    const int nMaxThreads;                         // Max number of threads
+    Params & paramsGlobal;                         // global copy of problem parameters
+	std::vector<Params> paramsPerThread;	       // Problem parameters
+    std::vector<Split> splits;                     // Split algorithms one per thread
     std::vector<LocalSearch> localSearchPerThread; // Local Search instances per thread
-	//Population population;			// Population (public for now to give access to the solutions, but should be be improved later on)
-    std::vector<Population> populations; // Populations, one per thread
-	//Individual offspring;			// First individual to be used as input for the crossover
-    std::vector<Individual> offsprings;
+    std::vector<Population> populations;           // Populations, one per thread
+    std::vector<Individual> offsprings;            // One offspring per thread
     // Keeps tracks of the time stamps of successive best solutions: {time, generation, value}
     std::vector<std::tuple<double, int, double>> searchProgress;
 
@@ -71,6 +67,7 @@ public:
 	Genetic(Params & params);
 
     StateAvg getState();
+
     void printState(int nbIter, StateAvg avg) const;
 
     void exportSearchProgress(std::string fileName, std::string instanceName);

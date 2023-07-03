@@ -3,14 +3,11 @@
 
 void Population::generatePopulation()
 {
-	//if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() << "----- BUILDING INITIAL POPULATION" << std::endl;
 	for (int i = 0; i < 4*params.ap.mu && (i == 0 || params.ap.timeLimit == 0 || (omp_get_wtime() - params.startTime) < params.ap.timeLimit) ; i++)
 	{
 		Individual randomIndiv(params);
 		split.generalSplit(randomIndiv, params.nbVehicles);
 		localSearch.run(randomIndiv, params.penaltyCapacity, params.penaltyDuration);
-
-        //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() << "----- BUILDING INITIAL POPULATION: FINISHED LOCAL SEARCH" << std::endl;
 
         addIndividual(randomIndiv, true);
 		if (!randomIndiv.eval.isFeasible && params.ran() % 2 == 0)  // Repair half of the solutions in case of infeasibility
@@ -20,7 +17,6 @@ void Population::generatePopulation()
 		}
 	}
 
-    //if (params.verbose) std::cout << "----- THREAD " << omp_get_thread_num() << "----- BUILDING INITIAL POPULATION DONE" << std::endl;
 }
 
 // Population management
@@ -39,8 +35,10 @@ bool Population::addIndividual(const Individual & indiv, bool updateFeasible)
 
 	// Create a copy of the individual and updade the proximity structures calculating inter-individual distances
 	Individual * myIndividual = new Individual(indiv);
+
     // If the individual is created using data from another population, it has some information to clear
     myIndividual->indivsPerProximity.clear();
+
 	for (Individual * myIndividual2 : subpop)
 	{
 		double myDistance = brokenPairsDistance(*myIndividual,*myIndividual2);
@@ -136,7 +134,6 @@ void Population::removeWorstBiasedFitness(SubPopulation & pop)
 
 void Population::restart()
 {
-	//if (params.verbose) std::cout << "----- RESET: CREATING A NEW POPULATION -----" << std::endl;
 	for (Individual * indiv : feasibleSubpop) delete indiv ;
 	for (Individual * indiv : infeasibleSubpop) delete indiv;
 	feasibleSubpop.clear();

@@ -3,12 +3,7 @@
 
 void Genetic::run()
 {	
-	/* INITIAL POPULATION */
-/*#pragma omp parallel for num_threads(nMaxThreads)
-    for(int i=0; i < nMaxThreads; i++){
-        populations[i].generatePopulation();
-        if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" DONE WITH POPULATION INIT" << std::endl;
-    }*/
+
 
     int nbIterGlobal = 0;
 
@@ -21,7 +16,6 @@ void Genetic::run()
 
         /* INITIAL POPULATION */
         populations[thread_num].generatePopulation();
-        //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << omp_get_thread_num() <<" DONE WITH POPULATION INIT" << std::endl;
 
         Population& population = populations[thread_num];
         LocalSearch& localSearch = localSearchPerThread[thread_num];
@@ -30,7 +24,6 @@ void Genetic::run()
 
 #pragma omp barrier
 
-        //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" STARTING GENETIC ALGORITHM" << std::endl;
         if (paramsPerThread[thread_num].verbose) std::printf("----- THREAD %d STARTING GENETIC ALGORITHM\n", thread_num);
 
 #pragma omp barrier
@@ -39,12 +32,10 @@ void Genetic::run()
             /* SELECTION AND CROSSOVER */
             crossoverOX(offspring, population.getBinaryTournament(), population.getBinaryTournament(), split);
 
-            //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" FINISHED CROSSOVER IN GENERATION " << nbIterThread << std::endl;
 
             /* LOCAL SEARCH */
             localSearch.run(offspring, paramsPerThread[thread_num].penaltyCapacity, paramsPerThread[thread_num].penaltyDuration);
 
-            //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" FINISHED LOCAL SEARCH IN GENERATION " << nbIterThread << std::endl;
 
             /* POPULATION MANAGEMENT AND REPAIR PROCEDURE */
             bool isNewBest = population.addIndividual(offspring,true);
@@ -54,7 +45,6 @@ void Genetic::run()
                 if (offspring.eval.isFeasible) isNewBest = (population.addIndividual(offspring,false) || isNewBest);
             }
 
-            //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" FINISHED LOCAL SEARCH IN GENERATION " << nbIterThread << std::endl;
 
             /* TRACKING THE NUMBER OF ITERATIONS SINCE LAST SOLUTION IMPROVEMENT */
             if (isNewBest) nbIterNonProd = 1;
@@ -62,7 +52,6 @@ void Genetic::run()
 
             /* DIVERSIFICATION, PENALTY MANAGEMENT AND TRACES */
             if (nbIterThread % paramsPerThread[thread_num].ap.nbIterPenaltyManagement == 0) population.managePenalties();
-            //if (nbIterThread % paramsPerThread[thread_num].ap.nbIterTraces == 0) population.printState(nbIterThread, nbIterNonProd, thread_num);
 
             /* FOR TESTS INVOLVING SUCCESSIVE RUNS UNTIL A TIME LIMIT: WE RESET THE ALGORITHM/POPULATION EACH TIME maxIterNonProd IS ATTAINED*/
             if (paramsPerThread[thread_num].ap.timeLimit != 0 && nbIterNonProd == paramsPerThread[thread_num].ap.nbIter)
@@ -70,7 +59,6 @@ void Genetic::run()
                 population.restart();
                 nbIterNonProd = 1;
 
-                //if (paramsPerThread[thread_num].verbose) std::cout << "----- THREAD " << thread_num <<" HAS RESTARTED THE POPULATION IN GENERATION " << nbIterThread << std::endl;
             }
 
             if((nbIterThread + 1) % paramsPerThread[thread_num].ap.exchangeRate == 0) {
@@ -83,7 +71,6 @@ void Genetic::run()
                     bestOfTheBest = getBestOfTheBest();
                 }
 
-                // TODO can we have duplicates?
                 populations[thread_num].addIndividual(*bestOfTheBest, true);
 
 
@@ -151,7 +138,6 @@ void Genetic::crossoverOX(Individual &result, const Individual &parent1, const I
 	split.generalSplit(result, parent1.eval.nbRoutes);
 }
 
-// NOTE optimisation potential: all the threads do the same, how can we reduce this? is it worth working on?
 Individual* Genetic::getBestOfTheBest(){
     Individual* newBestOfTheBest = nullptr;
     bool updated = false;
@@ -228,9 +214,7 @@ void Genetic::exportSearchProgress(std::string fileName, std::string instanceNam
     myfile << instanceName << ";" << paramsGlobal.ap.seed << ";" << std::get<2>(state) << ";" << std::get<1>(state) << ";" << std::get<0>(state) << std::endl;
 }
 
-//TODO add parameter for number of threads/demes
-Genetic::Genetic(Params & params) : 
-    //nMaxThreads(omp_get_max_threads()),
+Genetic::Genetic(Params & params) :
     nMaxThreads(omp_get_max_threads()),
     bestOfTheBest(nullptr),
     paramsPerThread(std::vector<Params>(nMaxThreads, params)),
